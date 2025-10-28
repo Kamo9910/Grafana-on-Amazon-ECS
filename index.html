@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>Grafana on Amazon ECS</title>
+</head>
+<body>
+        <div class="centered-text">
+
+        <h1>Grafana on Amazon ECS</h1>
+        
+        <img class="myImage" src="grafana on ecs.jpg" alt="Grafana on Amazon ECS" style="transition: transform 0.3s ease;" height="50%" width="50%">
+        
+        <h2>Project Overview:</h2>
+        <p>This project demonstrates how to deploy a production-ready Grafana dashboard using the official Docker image on Amazon Elastic Container Service (ECS) with the AWS Fargate launch type. The solution is fully serverless, no EC2 provisioning or container orchestration overhead and leverages Docker, ECS, and an Application Load Balancer (ALB) to expose Grafana’s web interface.By using the grafana/grafana image directly from Docker Hub, the deployment avoids the need for custom image builds or Amazon ECR. This makes the setup lightweight, fast to deploy, and ideal for internal dashboards, monitoring pipelines, or cloud-native observability stacks.</p>
+        
+        <h3>Steps taken to complets this project :</h3>
+            <h4>1. Create an ECS Cluster</h4>
+            <img class="myImage" src="Screenshot (1).png" alt="Amazon ECS" style="transition: transform 0.3s ease;" height="50%" width="50%">
+            <br>
+            <img class="myImage" src="Screenshot (2).png" alt="Amazon ECS" style="transition: transform 0.3s ease;" height="50%" width="50%">
+            <br> 
+            <p>- Go to ECS Console → Clusters → Create Cluster <br>
+               - Choose Networking only (Fargate) <br>
+               - Name it <br>
+               - Click Create</p>
+            <br>
+            <h4>2. Create a Security Gorup </h4>
+            <p>Go to EC2 → Security Groups → Create <br>
+              - Allow inbound traffic on port 80 (for ALB) and port 3000 (Grafana) <br>
+              - Allow outbound traffic <br>
+              - Save and note the security group ID</p>
+            <br>
+            <h4>3. Create an Application Load Balancer</h4>
+            <br>
+            <img class="myImage" src="Screenshot (7).png" alt="Amazone ECS" style="transition: transform 0.3s ease;" height="50%" width="50%">
+            <br>
+            <p>- Go to EC2 → Load Balancers → Create <br>
+               - Choose Application Load Balancer <br>
+               - Name: alb-grafana <br>
+               - Scheme: Internet-facing <br>
+               - Listener: HTTP on port 80 <br>
+               - Select VPC and public subnets <br>
+               - Assign the security group you created</p>
+            <br>
+            <h4>4. Create a Target Group</h4>
+            <p>- Go to EC2 → Target Groups → Create <br>
+               - Type: IP <br>
+               - Protocol: HTTP <br>
+               - Port: 3000 <br>
+               - Name: grafana-target-group <br>
+               - Health check path: / <br>
+               - Save</p>
+             <br>
+            <h4>5. Uploaded and monitored execution with cloudwatch</h4>
+            <br>
+            <img class="myImage" src="Screenshot (3).png" alt="Amazon ECS " style="transition: transform 0.3s ease;" height="50%" width="50%">
+            <br>
+            <p>- Launch type: Fargate <br>
+               - Name: grafana-task <br>
+               - Task size: 0.5 vCPU, 1 GB memory <br>
+            <br>
+               Add Container: <br>
+              - Name: grafana <br>
+              - Image: grafana/grafana <br>
+              - Port mappings: 3000 <br>
+              - Click Add</p>
+            <br>
+            <h4>6. Create ECS Service</h4>
+            <br>
+            <img class="myImage" src="Screenshot (8).png" alt="Amazon ECS " style="transition: transform 0.3s ease;" height="50%" width="50%">
+            <br>
+            <p>- Go to ECS → Cluster → Services → Create <br>
+               - Launch type: Fargate <br>
+               - Task definition: grafana-task <br>
+               - Service name: grafana-service-vrezh3mx <br>
+               - Number of tasks: 1 <br>
+                 Networking: <br>
+               - VPC: same as ALB <br>
+               - Subnets: public <br>
+               - Security group: same as ALB <br>
+                 Load balancer: <br>
+               - Type: Application Load Balancer <br>
+               - Select alb-grafana <br>
+               - Listener: port 80 <br>
+               - Target group: grafana-target-group <br>
+               - Click Create Service</p>
+            <br>
+            <h3>7. Access Grafana</h3>
+            <br>
+            <img class="myImage" src="Screenshot (5).png" alt="Amazon ECS " style="transition: transform 0.3s ease;" height="50%" width="50%">
+            <br>
+            <img class="myImage" src="Screenshot (6).png" alt="Amazon ECS " style="transition: transform 0.3s ease;" height="50%" width="50%">
+            <br>
+            <p>- Go to EC2 → Load Balancers → alb-grafana <br>
+               - Copy the DNS name</p>
+            </div>
+
+        <script src="javascript.js" charset="utf-8" ></script>
+
+</body>
+</html>
